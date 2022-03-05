@@ -6,36 +6,33 @@ import Button from '../UI/Button/Button';
 import Card from '../UI/Card/Card';
 
 const Login = (props) => {
-  // const emailInputRef = useRef();
-  // const passwrodInputRef = useRef();
   const [enteredEmail, setEnteredEmail] = useState('');
   const [emailIsValid, setEmailIsValid] = useState();
   const [enteredPassword, setEnteredPassword] = useState('');
   const [passwordIsValid, setPasswordIsValid] = useState();
   const [formIsValid, setFormIsValid] = useState(false);
 
+  useEffect(() => {
+    const identifier = setTimeout(() => {
+      console.log('Form Validation');
+      setFormIsValid(
+        enteredEmail.trim().includes('@') && enteredPassword.trim().length > 6
+      );
+    }, 500);
+
+    // Cleanup Function
+    return () => {
+      console.log('Clean Validation');
+      clearTimeout(identifier);
+    };
+  }, [enteredEmail, enteredPassword]);
+
   const emailChangeHandler = (event) => {
     setEnteredEmail(event.target.value);
-
-    setFormIsValid(
-      enteredEmail.trim().includes('@') && enteredPassword.trim().length > 6
-    );
   };
-
-  // useEffect(() => {
-  //   setEnteredEmail(emailInputRef.current.value);
-  //   setEnteredPassword(passwrodInputRef.current.value);
-  //   setFormIsValid(
-  //     enteredEmail.trim().includes('@') && enteredPassword.trim().length > 6
-  //   );
-  // }, []);
 
   const passwordChangeHandler = (event) => {
     setEnteredPassword(event.target.value);
-
-    setFormIsValid(
-      enteredPassword.trim().length > 6 && enteredEmail.trim().includes('@')
-    );
   };
 
   const validateEmailHandler = () => {
