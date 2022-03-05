@@ -6,7 +6,7 @@ import Card from '../UI/Card/Card';
 
 const Home = (props) => {
   return (
-    <Card className={styles.Home}>
+    <Card className={styles.home}>
       <h1>Welcome back!</h1>
     </Card>
   );
