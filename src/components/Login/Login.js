@@ -1,23 +1,56 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useReducer } from 'react';
 
 import styles from './Login.module.css';
 
 import Button from '../UI/Button/Button';
 import Card from '../UI/Card/Card';
 
+const emailReducer = (state, action) => {
+  if (action.type === 'USER_INPUT') {
+    return { value: action.val, isValid: action.val.trim().includes('@') };
+  }
+  if (action.type == 'INPUT_BLUR') {
+    return { value: state.value, isValid: state.value.trim().includes('@') };
+  }
+  return { value: '', isValid: null };
+};
+
+const passwordReducer = (state, action) => {
+  if (action.type === 'USER_INPUT') {
+    return { value: action.val, isValid: action.val.trim().length > 6 };
+  }
+
+  if (action.type === 'INPUT_BLUR') {
+    return { value: state.value, isValid: state.value.trim().length > 6 };
+  }
+};
+
 const Login = (props) => {
-  const [enteredEmail, setEnteredEmail] = useState('');
-  const [emailIsValid, setEmailIsValid] = useState();
-  const [enteredPassword, setEnteredPassword] = useState('');
-  const [passwordIsValid, setPasswordIsValid] = useState();
+  const [emailState, dispatchEmail] = useReducer(emailReducer, {
+    value: '',
+    isValid: null,
+  });
+  const [passwordState, dispatchPassword] = useReducer(passwordReducer, {
+    value: '',
+    isValid: null,
+  });
+  // const [enteredEmail, setEnteredEmail] = useState('');
+  // const [emailIsValid, setEmailIsValid] = useState();
+  // const [enteredPassword, setEnteredPassword] = useState('');
+  // const [passwordIsValid, setPasswordIsValid] = useState();
   const [formIsValid, setFormIsValid] = useState(false);
 
+  // to make useEffect validation stop running after fulfilling the validation conditions
+  // because any change in the values of dependency states will make useEffect run again even if the input values are valid so we want to extract only the validation a part of the state
+  // effect function would re-run whenever ANY property of state changes - not just the one property our effect might depend on.
+  const { isValid: emailIsValid } = emailState;
+  const { isValid: passwordIsValid } = passwordState;
+
+  // Form Validation
   useEffect(() => {
     const identifier = setTimeout(() => {
       console.log('Form Validation');
-      setFormIsValid(
-        enteredEmail.trim().includes('@') && enteredPassword.trim().length > 6
-      );
+      setFormIsValid(emailIsValid && passwordIsValid);
     }, 500);
 
     // Cleanup Function
@@ -25,27 +58,27 @@ const Login = (props) => {
       console.log('Clean Validation');
       clearTimeout(identifier);
     };
-  }, [enteredEmail, enteredPassword]);
+  }, [emailIsValid, passwordIsValid]);
 
   const emailChangeHandler = (event) => {
-    setEnteredEmail(event.target.value);
+    dispatchEmail({ type: 'USER_INPUT', val: event.target.value });
   };
 
   const passwordChangeHandler = (event) => {
-    setEnteredPassword(event.target.value);
+    dispatchPassword({ type: 'USER_INPUT', val: event.target.value });
   };
 
   const validateEmailHandler = () => {
-    setEmailIsValid(enteredEmail.trim().includes('@'));
+    dispatchEmail({ type: 'INPUT_BLUR' });
   };
 
   const validatePasswordHandler = () => {
-    setPasswordIsValid(enteredPassword.trim().length > 6);
+    dispatchPassword({ type: 'INPUT_BLUR' });
   };
 
   const submitHandler = (e) => {
     e.preventDefault();
-    props.onLogin(enteredEmail, enteredPassword);
+    props.onLogin(emailState, passwordState);
   };
 
   return (
@@ -54,28 +87,28 @@ const Login = (props) => {
         <div className={styles.controls}>
           <div
             className={`${styles.control} ${
-              emailIsValid === false ? styles.invalid : ''
+              emailState.isValid === false ? styles.invalid : ''
             }`}
           >
             <label htmlFor='email'> E-Mail </label>
             <input
               type='email'
               id='email'
-              value={enteredEmail}
+              value={emailState.value}
               onChange={emailChangeHandler}
               onBlur={validateEmailHandler}
             />
           </div>
           <div
             className={`${styles.control} ${
-              passwordIsValid === false ? styles.invalid : ''
+              passwordState.isValid === false ? styles.invalid : ''
             }`}
           >
             <label htmlFor='password'> Password </label>
             <input
               id='password'
               type='password'
-              value={enteredPassword}
+              value={passwordState.value}
               onChange={passwordChangeHandler}
               onBlur={validatePasswordHandler}
             />
