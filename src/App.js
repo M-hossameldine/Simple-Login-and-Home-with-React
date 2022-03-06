@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import MainHeader from './components/MainHeader/MainHeader/MainHeader';
 import Home from './components/Home/Home';
 import Login from './components/Login/Login';
+import AuthContext from './store/auth-context';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -25,11 +26,13 @@ function App() {
   }, []);
   return (
     <>
-      <MainHeader isAuthenticated={isLoggedIn} onLogout={logoutHandler} />
-      <main>
-        {!isLoggedIn && <Login onLogin={loginHandler} />}
-        {isLoggedIn && <Home />}
-      </main>
+      <AuthContext.Provider value={{ isLoggedIn: isLoggedIn }}>
+        <MainHeader isAuthenticated={isLoggedIn} onLogout={logoutHandler} />
+        <main>
+          {!isLoggedIn && <Login onLogin={loginHandler} />}
+          {isLoggedIn && <Home />}
+        </main>
+      </AuthContext.Provider>
     </>
   );
 }
