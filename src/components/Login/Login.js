@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useReducer } from 'react';
+import React, { useState, useEffect, useReducer, useContext } from 'react';
 
 import styles from './Login.module.css';
 
 import Button from '../UI/Button/Button';
 import Card from '../UI/Card/Card';
+import AuthContext from '../../store/auth-context';
 
 const emailReducer = (state, action) => {
   if (action.type === 'USER_INPUT') {
@@ -25,7 +26,7 @@ const passwordReducer = (state, action) => {
   }
 };
 
-const Login = (props) => {
+const Login = () => {
   const [emailState, dispatchEmail] = useReducer(emailReducer, {
     value: '',
     isValid: null,
@@ -39,6 +40,8 @@ const Login = (props) => {
   // const [enteredPassword, setEnteredPassword] = useState('');
   // const [passwordIsValid, setPasswordIsValid] = useState();
   const [formIsValid, setFormIsValid] = useState(false);
+
+  const authCtx = useContext(AuthContext);
 
   // to make useEffect validation stop running after fulfilling the validation conditions
   // because any change in the values of dependency states will make useEffect run again even if the input values are valid so we want to extract only the validation a part of the state
@@ -78,7 +81,7 @@ const Login = (props) => {
 
   const submitHandler = (e) => {
     e.preventDefault();
-    props.onLogin(emailState, passwordState);
+    authCtx.onLogin(emailState, passwordState);
   };
 
   return (
