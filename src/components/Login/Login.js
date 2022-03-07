@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useReducer, useContext } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useReducer,
+  useContext,
+  useRef,
+} from 'react';
 
 import Button from '../UI/Button/Button';
 import Card from '../UI/Card/Card';
@@ -44,6 +50,9 @@ const Login = () => {
 
   const authCtx = useContext(AuthContext);
 
+  const emailInputRef = useRef();
+  const passwordInputRef = useRef();
+
   // to make useEffect validation stop running after fulfilling the validation conditions
   // because any change in the values of dependency states will make useEffect run again even if the input values are valid so we want to extract only the validation a part of the state
   // effect function would re-run whenever ANY property of state changes - not just the one property our effect might depend on.
@@ -82,7 +91,13 @@ const Login = () => {
 
   const submitHandler = (e) => {
     e.preventDefault();
-    authCtx.onLogin(emailState, passwordState);
+    if (formIsValid) {
+      authCtx.onLogin(emailState, passwordState);
+    } else if (!emailIsValid) {
+      emailInputRef.current.focus();
+    } else {
+      passwordInputRef.current.focus();
+    }
   };
 
   return (
@@ -90,6 +105,7 @@ const Login = () => {
       <form onSubmit={submitHandler}>
         <div className={styles.controls}>
           <Input
+            ref={emailInputRef}
             label='E-Mail'
             isValid={emailIsValid}
             id='email'
@@ -100,6 +116,7 @@ const Login = () => {
           />
 
           <Input
+            ref={passwordInputRef}
             label='Password'
             isValid={passwordIsValid}
             id='password'
@@ -110,7 +127,7 @@ const Login = () => {
           />
         </div>
         <div className={styles.actions}>
-          <Button type='submit' className={styles.btn} disabled={!formIsValid}>
+          <Button type='submit' className={styles.btn}>
             Login
           </Button>
         </div>
